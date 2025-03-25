@@ -58,37 +58,38 @@ module.exports = app =>{ //o app é a instancia do Express que é passada no con
                 //Utilizando o modulo exportado de utils/error.js. Somente possível porque foi colocado no consign().include no index.js
                 app.utils.error.send(err, req, res);
             }else{
-                res.status(200).json(user);
+                res.status(200).json(user +"passou no get");
             }        
         })
     });
 
-    routeId.put((req,res)=>{
+    routeId.put((req, res) => {
 
         if (!app.utils.validator.user(app, req, res)) return false;
-
-        db.update({_id: req.params._id}, req.body, err=>{
-            if(err){
-                //Utilizando o modulo exportado de utils/error.js. Somente possível porque foi colocado no consign().include no index.js
+    
+        db.update({ _id: req.params._id }, { $set: req.body }, { multi: false }, (err, numReplaced) => {
+            if (err) {
                 app.utils.error.send(err, req, res);
-            }else{
-                res.status(200).json(Object.assign(req.params, req.body));
-            }        
-        })
+            } else if (numReplaced === 0) {
+                res.status(404).json({ message: "Usuário não encontrado" });
+            } else {
+                res.status(200).json({ message: "Usuário atualizado com sucesso", id: req.params._id });
+            }
+        });
     });
+    
 
-    routeId.delete((req,res)=>{
-        db.remove({_id: req.params._id}, {}, err=>{
-            if(err){
-                //Utilizando o modulo exportado de utils/error.js. Somente possível porque foi colocado no consign().include no index.js
+    routeId.delete((req, res) => {
+        db.remove({ _id: req.params._id }, {}, (err, numRemoved) => {
+            if (err) {
                 app.utils.error.send(err, req, res);
-            }else{
-                res.status(200).json({
-                    id: req.params, 
-                    message: "Deleted succesfully!"
-                });
-            }        
-        })
+            } else if (numRemoved === 0) {
+                res.status(404).json({ message: "Usuário não encontrado" });
+            } else {
+                res.status(200).json({ message: "Usuário deletado com sucesso", id: req.params._id });
+            }
+        });
     });
+    
 
 }

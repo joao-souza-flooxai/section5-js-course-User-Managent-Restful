@@ -46,15 +46,15 @@ class UserController{
                     let user = new User();
                     user.loadFromJSON(resultOldNewValues);
 
-                    user.save();
+                    user.save().then(user => {
+                        this.getTr(user, tr);
+                        this.updateCount();
+                        this.formUpdateEl.reset();
+                        btn.disabled = false;
+                        this.showPanelCreate();
 
-                    tr = this.getTr(user,tr);
-                    
-                    this.updateCount();
-     
-                    this.formElUpdate.reset();
-                    btnSubmit.disable = false;
-                    this.showPanelCreate();
+                    });
+
                 },
                 (e)=>{
                     console.error(e);
@@ -67,45 +67,19 @@ class UserController{
     }
 
     selectAll(){
-        //let users = User.getUsersStorage();
-        
-        let ajax = new XMLHttpRequest();
-        
-        ajax.open('GET', '/users'); 
-
-        // Define um evento para ser executado quando a requisição for concluída com sucesso.
-        ajax.onload = event => {
-
-            // Inicializa um objeto com um array "users", para armazenar os usuários recebidos.
-            let obj = { users: [] };
-
-            try {
-                // Tenta converter a resposta do servidor (que vem como texto) em um objeto JSON.
-                obj = JSON.parse(ajax.responseText);
-            } catch (e) {
-                // Caso ocorra um erro na conversão do JSON, exibe a mensagem de erro no console.
-                console.error(e);
-            }
-
-            // Percorre o array de usuários obtido da resposta da API.
-            obj.users.forEach(dataUser => {
-
-                // Cria uma nova instância da classe User.
+        //Classe que realiza requisições e, depois de receber a response(then) excuta uma função que recebe os dados(data)
+        HttpRequest.get('/users').then(data=>{ //Requisão get para(/users), então data recebe um array de users
+            //Percorre cada um dos campos do array de usuários enviados pelo servidor com foreach
+            data.users.forEach(dataUser =>{
+                //Constrói um usuário
                 let user = new User();
-
-                // Carrega os dados do usuário recebido no objeto da classe User.
+                //Transforma os dados em JSON
                 user.loadFromJSON(dataUser);
-
-                // Adiciona o usuário na table  .
+                //Adiciona na table users
                 this.addLine(user);
-
             });
-        };
 
-        // Envia a requisição para o servidor.
-        // Como é uma requisição GET, não há necessidade de passar dados no corpo da requisição.
-        ajax.send();
-
+        });
            
     }
 
@@ -157,11 +131,11 @@ class UserController{
 
                 user.loadFromJSON(JSON.parse(tr.dataset.user));
 
-                user.remove();
-
-                tr.remove();
-
-                this.updateCount();
+                user.remove().then(data=>{
+                    tr.remove();
+                    this.updateCount();
+                    alert(data);
+                });
 
             }
 
@@ -252,10 +226,11 @@ class UserController{
                 //Arrow Function usadas para não perder o contexto do this.
                 (content)=>{
                     formValues.photo = content;
-                    formValues.save();
-                    this.addLine(formValues);
-                    this.formEl.reset();
-                    btnSubmit.disable = false;
+                    formValues.save().then(user=>{
+                        this.addLine(user);
+                        this.formEl.reset();
+                        btnSubmit.disable = false;
+                    });
                 },
                 (e)=>{
                     console.error(e);
