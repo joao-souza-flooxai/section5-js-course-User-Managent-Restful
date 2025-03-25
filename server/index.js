@@ -9,9 +9,9 @@ const expressValidator = require('express-validator');
 let app = express();
 
 //Definindo que as solicitações que o servidor receber e tiver corpo(body) sejam covertidas em json
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit: '50mb'}));
 //Sugestão de configurar as solicitações para UrlEncoded
-app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.urlencoded({extended: false, limit: '50mb'} ));
 //Invocando o expressValidator
 app.use(expressValidator());
 //Colocando as pastas na aplicação
