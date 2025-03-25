@@ -68,10 +68,13 @@ class UserController{
 
     selectAll(){
         //let users = User.getUsersStorage();
+        
+        let ajax = new XMLHttpRequest();
+        
         ajax.open('GET', '/users'); 
 
         // Define um evento para ser executado quando a requisição for concluída com sucesso.
-        ajax.onload = event => {    
+        ajax.onload = event => {
 
             // Inicializa um objeto com um array "users", para armazenar os usuários recebidos.
             let obj = { users: [] };
@@ -93,7 +96,7 @@ class UserController{
                 // Carrega os dados do usuário recebido no objeto da classe User.
                 user.loadFromJSON(dataUser);
 
-                // Adiciona o usuário na table-users.
+                // Adiciona o usuário na table  .
                 this.addLine(user);
 
             });
@@ -102,6 +105,7 @@ class UserController{
         // Envia a requisição para o servidor.
         // Como é uma requisição GET, não há necessidade de passar dados no corpo da requisição.
         ajax.send();
+
            
     }
 
